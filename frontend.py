@@ -16,25 +16,27 @@ def download_video(url, progress_bar):
             progress_bar.progress(progress)
 
         yt = YouTube(url, on_progress_callback=on_progress)
-        highest_res_stream = yt.streams.get_highest_resolution()
+        # Get the audio stream instead of video
+        audio_stream = yt.streams.get_audio_only()
 
-        # Download the video to a BytesIO object
-        video_buffer = BytesIO()
-        highest_res_stream.stream_to_buffer(video_buffer)
-        video_buffer.seek(0)  # Reset buffer position for reading
+        # Download the audio to a BytesIO object
+        audio_buffer = BytesIO()
+        audio_stream.stream_to_buffer(audio_buffer)
+        audio_buffer.seek(0)  # Reset buffer position for reading
 
-        # Provide download button directly
+        # Provide download button for MP3
         st.download_button(
-            label="Download Video",
-            data=video_buffer,
-            file_name=f"{yt.title}.mp4",
-            mime="video/mp4"
+            label="Download MP3",
+            data=audio_buffer,
+            file_name=f"{yt.title}.mp3",
+            mime="audio/mp3"
         )
 
-        st.success("Video is ready for download!")
+        st.success("Audio is ready for download!")
 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
+
 
 
 # Function for the main Streamlit application
