@@ -11,20 +11,21 @@ except:
     # Try alternative import or suggest solution
     print("Try reinstalling with: pip install moviepy --upgrade")
 
-def convert_youtube_to_mp3(url, output_path=None):
+def convert_youtube_to_mp3(url, output_path=None, progress_callback=None):
     """
     Convert a YouTube video to MP3 format
     
     Args:
         url (str): YouTube URL
         output_path (str, optional): Path to save the MP3 file. Defaults to current directory.
+        progress_callback (callable, optional): Function to call with progress updates.
     
     Returns:
         str: Path to the saved MP3 file
     """
     try:
         # Create YouTube object with progress callback
-        yt = pytubefix.YouTube(url, on_progress_callback=on_progress)
+        yt = pytubefix.YouTube(url, on_progress_callback=progress_callback if progress_callback else on_progress)
         
         # Get video title and sanitize it for filename
         video_title = yt.title
