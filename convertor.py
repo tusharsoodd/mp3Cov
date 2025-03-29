@@ -56,12 +56,11 @@ def convert_youtube_to_mp3(url, output_path=None):
         print(f"An error occurred: {str(e)}")
         return None
 
-if __name__ == "__main__":
-    # Example usage
-    youtube_url = input("Enter YouTube URL: ")
-    output_directory = input("Enter output directory (leave blank for current directory): ")
+# if __name__ == "__main__":
+#     # Example usage
+#     youtube_url = input("Enter YouTube URL: ")
     
-    if not output_directory:
-        output_directory = None
+#     if not output_directory:
+#         output_directory = None
         
-    convert_youtube_to_mp3(youtube_url, output_directory)
+#     convert_youtube_to_mp3(youtube_url, output_directory)
