@@ -2,7 +2,6 @@ import pytubefix
 import os
 import re
 from pytubefix.exceptions import RegexMatchError
-from pytubefix.cli import on_progress
 
 try:
     from moviepy.editor import AudioFileClip
@@ -11,7 +10,7 @@ except:
     # Try alternative import or suggest solution
     print("Try reinstalling with: pip install moviepy --upgrade")
 
-def convert_youtube_to_mp3(url, output_path=None, progress_callback=None):
+def convert_youtube_to_mp3(url, progress_bar):
     """
     Convert a YouTube video to MP3 format
     
@@ -24,9 +23,18 @@ def convert_youtube_to_mp3(url, output_path=None, progress_callback=None):
         str: Path to the saved MP3 file
     """
     try:
+        def on_progress(stream, chunk, remaining):
+            total_size = stream.filesize
+            bytes_downloaded = total_size - remaining
+
+            # Calculate download progress as a percentage
+            progress = bytes_downloaded / total_size
+            # Update the Streamlit progress bar
+            progress_bar.progress(progress)
+
         # Create YouTube object with progress callback
-        yt = pytubefix.YouTube(url, on_progress_callback=progress_callback if progress_callback else on_progress)
-        
+        yt = pytubefix.YouTube(url, on_progress_callback=on_progress)
+        output_path = None
         # Get video title and sanitize it for filename
         video_title = yt.title
         video_title = re.sub(r'[^\w\-_. ]', '_', video_title)
