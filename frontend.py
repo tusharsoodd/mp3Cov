@@ -4,49 +4,38 @@ import tempfile
 import os
 import shutil
 from pathlib import Path
+from io import BytesIO
 
-# Function to download a YouTube video with a progress bar
 def download_video(url, progress_bar):
     try:
         # Callback function for download progress
         def on_progress(stream, chunk, remaining):
             total_size = stream.filesize
             bytes_downloaded = total_size - remaining
-
-            # Calculate download progress as a percentage
             progress = bytes_downloaded / total_size
-            # Update the Streamlit progress bar
             progress_bar.progress(progress)
 
-        # Create a YouTube object with the provided URL and set the progress callback
         yt = YouTube(url, on_progress_callback=on_progress)
-        
-        # Filter available video streams to include only those that are progressive and in mp4 format
-        streams = yt.streams.filter(progressive=True, file_extension="mp4")
-        
-        # Get the highest resolution stream
-        highest_res_stream = streams.get_highest_resolution()
+        highest_res_stream = yt.streams.get_highest_resolution()
 
-        # Create downloads directory in user's Downloads folder if it doesn't exist
-        download_dir = os.path.join(Path.home(), "Downloads")
-        os.makedirs(download_dir, exist_ok=True)
+        # Download the video to a BytesIO object
+        video_buffer = BytesIO()
+        highest_res_stream.stream_to_buffer(video_buffer)
+        video_buffer.seek(0)  # Reset buffer position for reading
 
-        # Download the video directly to the downloads directory
-        file_path = highest_res_stream.download(output_path=download_dir)
-        
-        # Get the filename for display
-        filename = os.path.basename(file_path)
+        # Provide download button directly
+        st.download_button(
+            label="Download Video",
+            data=video_buffer,
+            file_name=f"{yt.title}.mp4",
+            mime="video/mp4"
+        )
 
-        # Display success message using Streamlit with the file path
-        st.success(f"Video downloaded successfully to: {file_path}")
-        
-        # Provide a way to open the directory
-        if st.button("Open Download Folder"):
-            os.startfile(download_dir)
-            
+        st.success("Video is ready for download!")
+
     except Exception as e:
-        # Display an error message using Streamlit if an exception occurs
         st.error(f"An error occurred: {str(e)}")
+
 
 # Function for the main Streamlit application
 def main():
@@ -57,7 +46,7 @@ def main():
     video_url = st.text_input("Enter YouTube URL:")
 
     # Download button and progress bar
-    if st.button("Download"):
+    if st.button("Convert"):
         if video_url:
             # Create a Streamlit progress bar
             progress_bar = st.progress(0)
